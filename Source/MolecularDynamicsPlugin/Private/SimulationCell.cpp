@@ -19,32 +19,32 @@ ASimulationCell::ASimulationCell()
 	//SimulationVolume->GetBodySetup()->CollisionTraceFlag = ECollisionTraceFlag::CTF_UseSimpleAsComplex;
 	//Collision Ceiling
 	SimulationCellCeiling = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCeiling"));
-	SimulationCellCeiling->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellCeiling->BodyInstance.SetCollisionProfileName(TEXT("BlockAll"));
 	SimulationCellCeiling->SetHiddenInGame(bWallsHidden);
 	SimulationCellCeiling->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//CollisionFloor
 	SimulationCellFloor = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellFloor"));
-	SimulationCellFloor->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellFloor->BodyInstance.SetCollisionProfileName(TEXT("BlockAll"));
 	SimulationCellFloor->SetHiddenInGame(bWallsHidden);
 	SimulationCellFloor->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//XPos Wall (+x)
 	SimulationCellXPosWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellXPosWall"));
-	SimulationCellXPosWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellXPosWall->BodyInstance.SetCollisionProfileName(TEXT("BlockAll"));
 	SimulationCellXPosWall->SetHiddenInGame(bWallsHidden);
 	SimulationCellXPosWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//XNeg Wall (-x)
 	SimulationCellXNegWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellXNegWall"));
-	SimulationCellXNegWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellXNegWall->BodyInstance.SetCollisionProfileName(TEXT("BlockAll"));
 	SimulationCellXNegWall->SetHiddenInGame(bWallsHidden);
 	SimulationCellXNegWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//YPos Wall(+Y)
 	SimulationCellYPosWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellYPosWall"));
-	SimulationCellYPosWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellYPosWall->BodyInstance.SetCollisionProfileName(TEXT("BlockAll"));
 	SimulationCellYPosWall->SetHiddenInGame(bWallsHidden);
 	SimulationCellYPosWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//YNeg Wall (-Y)
 	SimulationCellYNegWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellYNegWall"));
-	SimulationCellYNegWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellYNegWall->BodyInstance.SetCollisionProfileName(TEXT("BlockAll"));
 	SimulationCellYNegWall->SetHiddenInGame(bWallsHidden);
 	SimulationCellYNegWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	

@@ -11,7 +11,7 @@ AMolecule::AMolecule()
 	SetRootComponent(MoleculeCoMIndicator);
 	MoleculeCoMIndicator->SetHiddenInGame(false);
 	MoleculeCoMIndicator->SetSphereRadius(100.f);
-	MoleculeCoMIndicator->BodyInstance.SetCollisionProfileName(TEXT("Molecule"));
+	MoleculeCoMIndicator->BodyInstance.SetCollisionProfileName(TEXT("BlockAll"));
 	MoleculeCoMIndicator->BodyInstance.SetEnableGravity(false);
 	MoleculeCoMIndicator->BodyInstance.LinearDamping = 0.f;
 	
