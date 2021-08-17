@@ -7,7 +7,7 @@
 ABond::ABond()
 {
 }
-
+/*
 void ABond::InitBond(FString NewName, FString NewType, float NewEquilibriumLength, float NewSpringConstant, FLinearColor NewColor, AAtom* NewAtomA, AAtom* NewAtomB)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -23,6 +23,7 @@ void ABond::InitBond(FString NewName, FString NewType, float NewEquilibriumLengt
 
 	// Initialize representation(s) here...
 }
+*/
 
 void ABond::InitBondPrototype(FString NewName, FString NewType, float NewEquilibriumLength, float NewSpringConstant, FLinearColor NewColor)
 {
@@ -32,7 +33,7 @@ void ABond::InitBondPrototype(FString NewName, FString NewType, float NewEquilib
 	SpringConstant = NewSpringConstant;
 	Color = NewColor;
 }
-
+/*
 void ABond::InitBondCopy(ABond* Source, AAtom* NewAtomA, AAtom* NewAtomB)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -48,6 +49,7 @@ void ABond::InitBondCopy(ABond* Source, AAtom* NewAtomA, AAtom* NewAtomB)
 
 	// Initialize representation(s) here...
 }
+*/
 
 // Called when the game starts or when spawned
 void ABond::BeginPlay()
@@ -82,7 +84,7 @@ float ABond::GetBondLength()
 {
 	return 0.0f;
 }
-
+/*
 AAtom* ABond::GetAtomA()
 {
 	return AtomA;
@@ -102,7 +104,7 @@ void ABond::SetAtomB(AAtom* Atom)
 {
 	AtomB = Atom;
 }
-
+*/
 void ABond::UpdateBondEnergy()
 {
 }

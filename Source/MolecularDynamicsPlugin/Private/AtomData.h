@@ -29,9 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AtomData")
 		FString Color;
 
-	/** The van der Waals covalent radius of the atom, in picometres.  This sets the size of the atom in space-filling representation. */
+	/** The van der Waals radius of the atom, in picometres.  This sets the size of the atom in space-filling representation. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AtomData")
-		float Radius;
+		float VDWRadius;
 
 	/** The atom's (average, standard, default) mass in amu. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AtomData")

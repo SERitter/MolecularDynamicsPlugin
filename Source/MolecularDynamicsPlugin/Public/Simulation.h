@@ -28,11 +28,12 @@
 #include "Molecule.h"
 #include "AtomPrototype.h"
 #include "BondPrototype.h"
-#include "Atom.h"
+//#include "Atom.h"
 #include "Bond.h"
 #include "MoleculeConcentration.h"
 #include "SimulationCell.h"
 #include "AtomData.h"
+#include "SimRand.h"
 #include "MoleculePrototype.h"
 #include "Simulation.generated.h"
 
@@ -74,9 +75,25 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	//********************************************************************
+    // Physical Constants
+    //********************************************************************
+
+	// Weirdly, static constants have to be declared in the header (with static), 
+	// then assigned actual values in the CPP file (*without* static).
+
+	/** Avogadro's Number, in mol^-1 */
+	static const float AVOGADRO;
+
+	/** Boltzmann's Constant (k_B or just k), in J/K */
+	static const float BOLTZMANN;
+
+	/** Conversion from atomic mass units to kg */
+	static const float KG_PER_U;
+
+	//********************************************************************
 	// Blueprint Accessible Functions
 	//********************************************************************
-public:
+
 	//********************************************************************
 	// Dynamics - Getter Functions
 	//********************************************************************
@@ -187,6 +204,9 @@ public:
 	/** Checks if a collision has occurred; if it has, check for reactions. */
 	UFUNCTION(BluePrintCallable, Category = "Dynamics - Other Functions")
 		void CheckCollision();
+
+	UFUNCTION(BluePrintCallable, Category = "Dynamics - Other Functions")
+		void EnableMoleculePhysics();
 
 	/** Updates the Simulation*/
 	UFUNCTION(BluePrintCallable, Category = "Dynamics - Other Functions")
@@ -449,10 +469,13 @@ private:
 private:
 	/** Name of this plugin; needed for paths. (If there's a built-in way to get this, please change the code!) */
 	const FString PLUGIN = TEXT("MolecularDynamicsPlugin");
-	//const FString CONTENTDIR = IPluginManager::Get().FindPlugin(PLUGIN)->GetContentDir();
 
 	/** Path to the plugin's Content directory, where data files are stored. */
 	FString ContentDir;
+
+	/** Random number generator. */
+	UPROPERTY()
+		USimRand* RandGen;
 
 	/** An array of active reaction objects*/
 	UPROPERTY()
@@ -480,8 +503,8 @@ private:
 		TArray<FReaction> PossibleReactions;
 
 	/** An array of prototype atom objects.  Keys are AMBER94 Types. */
-	UPROPERTY()
-		TMap<FString, AAtom*> PrototypeAtoms;
+	//UPROPERTY()
+		//TMap<FString, AAtom*> PrototypeAtoms;
 
 	/** An array of prototype molecule objects. Keys are molecule names. */
 	UPROPERTY()
@@ -507,7 +530,15 @@ private:
 	UPROPERTY()
 		float TimeScale;
 
+	//********************************************************************
+	// Public Variables
+	//********************************************************************
 public:
-	const float AVOGADRO = 6.0221409e23;
+	//Atom Static Mesh
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = "Dynamics - Representation")
+	UStaticMesh* SM_Atom;
 
+	//Atom Base Material
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = "Dynamics - Representation")
+	UMaterialInterface* M_AtomBase;
 };

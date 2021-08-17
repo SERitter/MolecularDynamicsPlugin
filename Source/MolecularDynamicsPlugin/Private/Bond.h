@@ -7,7 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Materials/Material.h"
 #include "Math/Color.h"
-#include "Atom.h"
+//#include "AtomOLD.h"
 #include "Bond.generated.h"
 
 UCLASS()
@@ -31,16 +31,17 @@ public:
 	 * @param Color - What colour to use when drawing this bond.
 	 * @param AtomA - The first atom to connect to.
 	 * @param AtomB - The second atom to connect to.
-	 */
 	UFUNCTION()
 		void InitBond(
 			FString Name,
 			FString Type,
 			float EquilibriumLength,
 			float SpringConstant,
-			FLinearColor Color,
-			AAtom* AtomA,
-			AAtom* AtomB);
+			FLinearColor Color);
+//			FLinearColor Color,
+	//		AAtom* AtomA,
+	//		AAtom* AtomB);
+	 */
 
 	/**
 	 * Construct a prototype bond.  Does not connect to any atoms.
@@ -66,8 +67,8 @@ public:
 	 * @param AtomA - The first atom to connect to.
 	 * @param AtomB - The second atom to connect to.
 	 */
-	UFUNCTION()
-		void InitBondCopy(ABond* Source, AAtom* AtomA, AAtom* AtomB);
+	//UFUNCTION()
+		//void InitBondCopy(ABond* Source, AAtom* AtomA, AAtom* AtomB);
 
 	/**
 	 * Copies properties from the Source, including the linked atoms.
@@ -112,29 +113,29 @@ public:
 
 	/**
 	 * @return Pointer to the atom at one end of the bond.
-	 */
 	UFUNCTION()
 		AAtom* GetAtomA();
+	 */
 
 	/**
 	 * @return Pointer to the atom at one end of the bond.
-	 */
 	UFUNCTION()
 		AAtom* GetAtomB();
+	 */
 
 	/**
 	 * Connects one end of the bond to the given atom.
 	 * @param Atom - The atom to connect to.
-	 */
 	UFUNCTION()
 		void SetAtomA(AAtom* Atom);
+	 */
 
 	/**
 	 * Connects one end of the bond to the given atom.
 	 * @param Atom - The atom to connect to.
-	 */
 	UFUNCTION()
 		void SetAtomB(AAtom* Atom);
+	 */
 
 	/** Calculates the energy stored in the bond */
 	UFUNCTION()
@@ -146,12 +147,12 @@ public:
 
 private:
 	/** A pointer to AtomA in the bond */
-	UPROPERTY()
-		AAtom* AtomA;
+	//UPROPERTY()
+		//AAtom* AtomA;
 
 	/** A pointer to AtomB in the bond */
-	UPROPERTY()
-		AAtom* AtomB;
+	//UPROPERTY()
+		//AAtom* AtomB;
 
 	/** Identifier for the prototype of this bond. */
 	UPROPERTY()

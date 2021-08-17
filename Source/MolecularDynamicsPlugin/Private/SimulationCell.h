@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
+#include "PhysicsEngine/BodySetup.h"
 #include "SimulationCell.generated.h"
 
 UCLASS()
@@ -53,6 +54,26 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationVolume;
+		float WallThickness = 10.f;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
+		UBoxComponent* SimulationCellIndicator;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
+		UBoxComponent* SimulationCellCeiling;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
+		UBoxComponent* SimulationCellFloor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
+		UBoxComponent* SimulationCellXPosWall;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
+		UBoxComponent* SimulationCellXNegWall;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
+		UBoxComponent* SimulationCellYPosWall;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
+		UBoxComponent* SimulationCellYNegWall;
 };

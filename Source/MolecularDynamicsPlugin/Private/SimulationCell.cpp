@@ -10,9 +10,44 @@ ASimulationCell::ASimulationCell()
 	PrimaryActorTick.bCanEverTick = true;
 	UE_LOG(LogTemp, Warning, TEXT("ASimulationCell::ASimulationCell() Called."));
 
-	SimulationVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationVolume"));
-	SetRootComponent(SimulationVolume);
-	SimulationVolume->SetHiddenInGame(false);
+	SimulationCellIndicator = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCell"));
+	SetRootComponent(SimulationCellIndicator);
+	SimulationCellIndicator->SetHiddenInGame(false);
+	SimulationCellIndicator->BodyInstance.SetCollisionProfileName(TEXT("NoCollision"));
+
+	bool bWallsHidden = true;
+	//SimulationVolume->GetBodySetup()->CollisionTraceFlag = ECollisionTraceFlag::CTF_UseSimpleAsComplex;
+	//Collision Ceiling
+	SimulationCellCeiling = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCeiling"));
+	SimulationCellCeiling->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellCeiling->SetHiddenInGame(bWallsHidden);
+	SimulationCellCeiling->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//CollisionFloor
+	SimulationCellFloor = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellFloor"));
+	SimulationCellFloor->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellFloor->SetHiddenInGame(bWallsHidden);
+	SimulationCellFloor->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//XPos Wall (+x)
+	SimulationCellXPosWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellXPosWall"));
+	SimulationCellXPosWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellXPosWall->SetHiddenInGame(bWallsHidden);
+	SimulationCellXPosWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//XNeg Wall (-x)
+	SimulationCellXNegWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellXNegWall"));
+	SimulationCellXNegWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellXNegWall->SetHiddenInGame(bWallsHidden);
+	SimulationCellXNegWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//YPos Wall(+Y)
+	SimulationCellYPosWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellYPosWall"));
+	SimulationCellYPosWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellYPosWall->SetHiddenInGame(bWallsHidden);
+	SimulationCellYPosWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	//YNeg Wall (-Y)
+	SimulationCellYNegWall = CreateDefaultSubobject<UBoxComponent>(TEXT("SimulationCellYNegWall"));
+	SimulationCellYNegWall->BodyInstance.SetCollisionProfileName(TEXT("Wall"));
+	SimulationCellYNegWall->SetHiddenInGame(bWallsHidden);
+	SimulationCellYNegWall->AttachToComponent(SimulationCellIndicator, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	
 }
 
 // Called when the game starts or when spawned
@@ -31,13 +66,13 @@ void ASimulationCell::Tick(float DeltaTime)
 
 float ASimulationCell::GetVolume()
 {
-	FVector BoxExtent = SimulationVolume->GetUnscaledBoxExtent();
+	FVector BoxExtent = SimulationCellIndicator->GetUnscaledBoxExtent();
 	return (BoxExtent.X * 2.f) * (BoxExtent.Y * 2.f) * (BoxExtent.Z * 2.f);
 }
 
 float ASimulationCell::GetWidth()
 {
-	return SimulationVolume->GetUnscaledBoxExtent().X * 2.f;
+	return SimulationCellIndicator->GetUnscaledBoxExtent().X * 2.f;
 }
 
 void ASimulationCell::InitVolume(float CellWidth)
@@ -53,12 +88,34 @@ void ASimulationCell::InitVolume(float CellWidth)
 
 void ASimulationCell::SetShapeColor(FColor CellColor)
 {
-	SimulationVolume->ShapeColor = CellColor;
+	SimulationCellIndicator->ShapeColor = CellColor;
 }
 
 void ASimulationCell::SetWidth(float CellWidth)
 {
-	SimulationVolume->SetBoxExtent(FVector(CellWidth / 2.f));
+	float EdgeDistance = CellWidth / 2.f;
+	float WallDistance = EdgeDistance + (WallThickness / 2.f);
+	SimulationCellIndicator->SetBoxExtent(FVector(EdgeDistance));
+	
+	//ceiling
+	SimulationCellCeiling->SetBoxExtent(FVector(EdgeDistance + (2 * WallThickness), EdgeDistance + 2 * WallThickness, WallThickness));
+	SimulationCellCeiling->SetRelativeLocation(FVector(0.f, 0.f, WallDistance));
+	//floor
+	SimulationCellFloor->SetBoxExtent(FVector(EdgeDistance + 2 * WallThickness, EdgeDistance + 2 * WallThickness, WallThickness));
+	SimulationCellFloor->SetRelativeLocation(FVector(0.f, 0.f, -1.f * WallDistance));
+	//XPos Wall (+x)
+	SimulationCellXPosWall->SetBoxExtent(FVector(WallThickness, EdgeDistance + 2 * WallThickness, EdgeDistance + 2 * WallThickness));
+	SimulationCellXPosWall->SetRelativeLocation(FVector(WallDistance, 0.f, 0.f));
+	//XNeg Wall (-x)
+	SimulationCellXNegWall->SetBoxExtent(FVector(WallThickness, EdgeDistance + 2 * WallThickness, EdgeDistance + 2 * WallThickness));
+	SimulationCellXNegWall->SetRelativeLocation(FVector(-1.f * WallDistance, 0.f, 0.f));
+	//YPos Wall(+Y)
+	SimulationCellYPosWall->SetBoxExtent(FVector(EdgeDistance + 2 * WallThickness, WallThickness, EdgeDistance + 2 * WallThickness));
+	SimulationCellYPosWall->SetRelativeLocation(FVector(0.f, WallDistance,0.f));
+	//YNeg Wall (-Y)
+	SimulationCellYNegWall->SetBoxExtent(FVector(EdgeDistance + 2 * WallThickness, WallThickness, EdgeDistance + 2 * WallThickness));
+	SimulationCellYNegWall->SetRelativeLocation(FVector(0.f, -1.f * WallDistance, 0.f));
+	
 }
 
 void ASimulationCell::SetVolume(float Volume)

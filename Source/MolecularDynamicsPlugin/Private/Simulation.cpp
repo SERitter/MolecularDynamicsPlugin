@@ -17,8 +17,8 @@
 //		Update Functions
 //********************************************************************
 
-
 #include "Simulation.h"
+#include "SimRand.h"
 
 
 /*
@@ -44,6 +44,19 @@ void ASimulation::Tick(float DeltaTime)
 
 }
 */
+
+//********************************************************************
+// Physical Constants
+//********************************************************************
+
+/** Avogadro's Number, in mol^-1 */
+const float ASimulation::AVOGADRO = 6.0221409e23;
+
+/** Boltzmann's Constant (k_B or just k), in J/K */
+const float ASimulation::BOLTZMANN = 1.38064852e-23;
+
+/** Conversion from atomic mass units to kg */
+const float ASimulation::KG_PER_U = 1.66054e-27;
 
 
 //********************************************************************
@@ -154,10 +167,15 @@ void ASimulation::InitializeSimulation()
 
 	UE_LOG(LogTemp, Warning, TEXT("ASimulation's Location is: %s"), *GetActorLocation().ToString());
 
+	RandGen = NewObject<USimRand>();
+	RandGen->Init();
+
 	LoadChemData();
 	BuildDefaultPrototypes();
 	
 	AddSolvent("Water");
+
+	//EnableMoleculePhysics();
 }
 
 void ASimulation::InitInteractionRadius(float Radius)
@@ -354,8 +372,6 @@ void ASimulation::AddMolecule(FString MoleculeName, FVector Position)
 	SpawnInfo.Name = *NumberedName;
 	AMolecule* NewMolecule = GetWorld()->SpawnActor<AMolecule>(GetActorLocation(), GetActorRotation(), SpawnInfo);
 	NewMolecule->SetActorLabel(*NumberedName);
-	NewMolecule->AttachToActor(SimulationCell, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	NewMolecule->SetActorRelativeLocation(Position);
 	FRotator RandomRotation = FRotator(FMath::FRandRange(-180.f, 180.f), FMath::FRandRange(-180.f, 180.f), FMath::FRandRange(-180.f, 180.f));
 	NewMolecule->SetActorRotation(RandomRotation);
 
@@ -367,8 +383,16 @@ void ASimulation::AddMolecule(FString MoleculeName, FVector Position)
 	UE_LOG(LogTemp, Warning, TEXT("ASimulation::AddMolecule(%s) - Prototype Molecule Found."), *MoleculeName);
 
 	NewMolecule->InitMolecule(PrototypeMolecules[MoleculeName], Molecules.Num(), AtomDataTable);
+
+	//Add Initial movement to molecule
+	//float MaxSpeed = 0.f;
+	//FVector NewVelocity = FVector(FMath::RandRange(-1 * MaxSpeed, MaxSpeed), FMath::RandRange(-1 * MaxSpeed, MaxSpeed), FMath::RandRange(-1 * MaxSpeed, MaxSpeed));
+	FVector NewVelocity = RandGen->RandV_MaxwellBoltzmann(PrototypeMolecules[MoleculeName].MolarMass, Temperature);
+	NewMolecule->SetVelocity(NewVelocity);
+	UE_LOG(LogTemp, Warning, TEXT("ASimulation::AddMolecule(%s) - Name: %s. Molecule Velocity: %s."), *MoleculeName, *NewMolecule->GetName(), *NewVelocity.ToString());
 	
-	UE_LOG(LogTemp, Warning, TEXT("ASimulation::AddMolecule(%s) - Name: %s."), *MoleculeName, *NewMolecule->GetName());
+	NewMolecule->AttachToActor(SimulationCell, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	NewMolecule->SetActorRelativeLocation(Position);
 	Molecules.Add(NewMolecule);
 	UE_LOG(LogTemp, Warning, TEXT("ASimulation::AddMolecule(%s) Completed."), *MoleculeName);
 }
@@ -389,6 +413,7 @@ void ASimulation::AddSolvent(FString MoleculeName)
 	UE_LOG(LogTemp, Warning, TEXT("ASimulation::AddSolvent(%s) - Prototype Molecule Found."), *MoleculeName);
 	
 	int32 NumAtoms = CalculateNumberOfSolventMolecules(PrototypeMolecules[MoleculeName].Density, PrototypeMolecules[MoleculeName].MolarMass);
+	//NumAtoms = 1;
 	
 	FVector SubDivisions = CalculateDivisionsForNumMolecules(NumAtoms);
 	TArray<FVector> Positions = CalculateSubdivisionPositions(SubDivisions);
@@ -404,7 +429,9 @@ void ASimulation::AddSolvent(FString MoleculeName)
 		UE_LOG(LogTemp, Warning, TEXT("ASimulation::AddSolvent(%s) Adding Molecule: %d - Positions[%d]: %s"), *MoleculeName, i, i, *Positions[i].ToString());
 
 		AddMolecule(TEXT("Water"), Positions[i]);
+	//	AddMolecule(TEXT("Water"), FVector(0.f));
 	}
+
 }
 
 //********************************************************************
@@ -540,9 +567,25 @@ void ASimulation::BuildDefaultPrototypes()
 	*/
 }
 
+void ASimulation::EnableMoleculePhysics()
+{
+	/*
+	for(int32 i = 0; i < Molecules.Num(); i++)
+	{
+		Molecules[i]->EnablePhysics();
+	}
+	 */
+
+	for(AMolecule* Molecule : Molecules)
+	{
+		Molecule->EnablePhysics();
+	}
+}
+
 
 void ASimulation::LoadChemData() {
-	FString ChemDataDir = ContentDir + TEXT("/ChemData");
+	FString ChemDataDirName = TEXT("ChemData");
+	FString ChemDataDir = ContentDir + TEXT("/") + ChemDataDirName;
 
 	////////////////////////////////////////
 	// Load atom data.
@@ -565,7 +608,6 @@ void ASimulation::LoadChemData() {
 	}
 
 	// Create a new data table based on the atom data row struct.
-	// UClass *DataTableClass = UDataTable::StaticClass();
 	AtomDataTable = NewObject<UDataTable>();
 	AtomDataTable->RowStruct = FAtomData::StaticStruct();
 
@@ -574,7 +616,7 @@ void ASimulation::LoadChemData() {
 	TArray<FString> Problems;
 	bool success;
 	success = FFileHelper::LoadFileToString(FileContent, *AtomDataFile);
-	UE_LOG(LogTemp, Warning, TEXT("LoadChemData LoadFileToString status: %s, length: %d"), (success ? TEXT("true") : TEXT("false")), FileContent.Len());
+	//UE_LOG(LogTemp, Warning, TEXT("LoadChemData LoadFileToString status: %s, length: %d"), (success ? TEXT("true") : TEXT("false")), FileContent.Len());
 	Problems = AtomDataTable->CreateTableFromCSVString(FileContent);
 	if (Problems.Num() > 0) {
 		UE_LOG(LogTemp, Warning, TEXT("LoadChemData  %d problems loading AtomDataTable."), Problems.Num());
@@ -592,17 +634,54 @@ void ASimulation::LoadChemData() {
 
 	float LengthScale = 100; // Factor to convert units in PDB (angstroms) to our units (pm).
 
-	// Get a list of all PDB files in the data folder.
-	TArray<FString> FileList;
-	FString PDBwildcard = ChemDataDir + TEXT("/*.pdb");
+	// Check the various "Content" folders for ChemData subfolders with PDB files in them.
+	TArray<FString> FileList, PartialFileList;
 	IFileManager& FileManager = IFileManager::Get();
-	FileManager.FindFiles(FileList, *PDBwildcard, true, false);
+	FString PDBwildcard = TEXT("*.pdb");
+	TArray<FString> SearchDirs;
+	SearchDirs.Add(FPaths::ProjectContentDir() + ChemDataDirName);
+	SearchDirs.Add(FPaths::EngineContentDir() + ChemDataDirName);
+	SearchDirs.Add(ChemDataDir);
+	UE_LOG(LogTemp, Warning, TEXT("LoadChemData Searching %d folders for PDB files."), SearchDirs.Num());
+
+
+	for (int idir = 0; idir < SearchDirs.Num(); ++idir) {
+		PartialFileList.Empty();
+		FString SearchDir = SearchDirs[idir];
+		FString fullpath;
+		if (FPaths::DirectoryExists(SearchDir)) {
+			fullpath = SearchDir + TEXT("/") + PDBwildcard;
+			FileManager.FindFiles(PartialFileList, *fullpath, true, false);
+			UE_LOG(LogTemp, Warning, TEXT("LoadChemData Found %d PDB files in folder %s"), PartialFileList.Num(), *fullpath);
+			for (int i = 0; i < PartialFileList.Num(); ++i) {
+				PartialFileList[i] = SearchDir + TEXT("/") + PartialFileList[i];
+			}
+			FileList += PartialFileList;
+		} else {
+			UE_LOG(LogTemp, Warning, TEXT("No ChemData folder at %s"), *SearchDir);
+		}
+	} // loop over search dirs
+
 	UE_LOG(LogTemp, Warning, TEXT("LoadChemData Found %d PDB files."), FileList.Num());
 	// Read the molecule data from each PDB file.  (We'll be ignoring a lot of what's in there.)
-	FString Record, Symbol, Xstr, Ystr, Zstr;
-	int32 Serial;
+	TArray<FString> MolNames; // For checking for duplicates.
+	FString MolName, Record, Symbol, Xstr, Ystr, Zstr;
+	int32 PathIdx, Serial;
 	for (int ifile = 0; ifile < FileList.Num(); ++ifile) {
-		FString PDBfile = ChemDataDir + TEXT("/") + FileList[ifile];
+		//FString PDBfile = ChemDataDir + TEXT("/") + FileList[ifile];
+		FString PDBfile = FileList[ifile];
+		PDBfile.FindLastChar('/', PathIdx);
+		MolName = PDBfile.Right(PDBfile.Len() - PathIdx - 1);
+
+		// If we've already loaded a file with this molecule name, skip it.
+		if (MolNames.Contains(MolName)) {
+			UE_LOG(LogTemp, Warning, TEXT("LoadChemData Molecule %s already loaded!  Skipping file %s"), *MolName, *PDBfile);
+			continue;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("LoadChemData Loading molecule %s from file %s"), *MolName, *PDBfile);
+		MolNames.Add(MolName);
+
 		TArray<FString> lines;
 		success = FFileHelper::LoadFileToStringArray(lines, *PDBfile);
 		if (success) {
@@ -713,18 +792,27 @@ void ASimulation::LoadChemData() {
 					} // Loop over target atoms in CONECT row.
 				} // if chain for record type
 			} // Finished reading PDB file.
-			// Calculate molar mass of the molecule.
+			
+			// Calculate molar mass and centre of mass of the molecule.
 			float Mass = 0;
+			FVector CM(0);
 			for (int iatom = 0; iatom < Mol.Atoms.Num(); ++iatom) {
 				FAtomData* AtomData = AtomDataTable->FindRow<FAtomData>(FName(*Mol.Atoms[iatom].Symbol), "");
 				if (AtomData != nullptr) {
 					UE_LOG(LogTemp, Warning, TEXT("LoadChemData Table has atom %s with mass %f."),
 						*Mol.Atoms[iatom].Symbol, AtomData->Mass);
-						Mass += AtomData->Mass;
+					Mass += AtomData->Mass;
+					CM += AtomData->Mass * Mol.Atoms[iatom].Position;
 				}
 			}
+			CM = CM / Mass;
 			Mol.MolarMass = Mass;
 			Mol.Density = -1;
+
+			// Shift atom positions to put the coordinate origin at the centre of mass.
+			for (int iatom = 0; iatom < Mol.Atoms.Num(); ++iatom) {
+				Mol.Atoms[iatom].Position -= CM;
+			}
 
 			UE_LOG(LogTemp, Warning, TEXT("LoadChemData Loaded molecule (%s), with %d atoms and mass %f."),
 				*Mol.Name, Mol.Atoms.Num(), Mol.MolarMass);
