@@ -12,9 +12,9 @@ struct FReaction
 {
 	GENERATED_BODY()
 
-		/**English name of Reactant A molecule*/
-		UPROPERTY()
-		FString ReactantAName;
+	/**English name of Reactant A molecule*/
+	UPROPERTY()
+	FString ReactantAName;
 
 	/**English name of reactant B molecule*/
 	UPROPERTY()

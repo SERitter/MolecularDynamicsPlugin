@@ -8,6 +8,10 @@ Utility class providing functions to generate random properties for the molecule
 
 #include "CoreMinimal.h"
 #include "LookupTable.h"
+#include "Math/UnrealMathUtility.h"
+#include "SimulationConstants.h"
+#include "SimulationData.h"
+
 #include "SimRand.generated.h"
 
 UCLASS()
@@ -36,7 +40,9 @@ public:
     */
     UFUNCTION()
     FVector RandV_MaxwellBoltzmann(float Mass_u, float Temperature);
-    
+
+    UFUNCTION()
+    void SetSimulationData(USimulationData* SharedData);
 
 private:
 
@@ -47,6 +53,8 @@ private:
     UPROPERTY()
     ULookupTable *NormalDist;
 
+	UPROPERTY()
+    USimulationData* SimulationData;
 };
 
 /*

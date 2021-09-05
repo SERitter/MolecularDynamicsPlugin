@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "ResetWall.h"
+#include "TeleportWall.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
 #include "PhysicsEngine/BodySetup.h"
@@ -27,53 +30,62 @@ public:
 
 public:
 	UFUNCTION()
-		float GetVolume();
+	float GetVolume();
 
 	UFUNCTION()
-		float GetWidth();
+	float GetWidth();
+
+	void InitCollisionWalls();
+
+	void InitResetWalls();
+
+	void InitTeleportWalls();
 
 	UFUNCTION()
-		void InitVolume(float CellWidth);
+	void InitSimulationCell(float CellWidth, bool bTeleportWalls, USimulationData* Simulation);
 
 	//LineThickness is a protected member, we will have to add a different representation to adjust this value.
 	//UFUNCTION()
 	//void SetLineThickness(float LineThickness);
 
 	UFUNCTION()
-		void SetShapeColor(FColor LineColor);
+	void SetCollisionWallsWidth(float EdgeDistance, float WallDistance);
 
 	UFUNCTION()
-		void SetWidth(float CellWidth);
+		void SetResetWallsWidth(float EdgeDistance, float WallDistance);
+
+	UFUNCTION()
+	void SetTeleportWallsWidth(float EdgeDistance, float WallDistance);
+	
+	UFUNCTION()
+	void SetShapeColor(FColor LineColor);
+
+	UFUNCTION()
+	void SetWidth(float CellWidth);
 
 	/**
 	 * sets the dimensions based upon a desired volume
 	 * @param Volume: The desired volume in Cubic Unreal Units. 1 UU = 1 pM
 	 */
 	UFUNCTION()
-		void SetVolume(float Volume);
+	void SetVolume(float Volume);
 
-public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		float WallThickness = 10.f;
+public:	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	float WallThickness = 20.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	TArray<UBoxComponent*> CollisionWalls;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	TArray<AResetWall*> ResetWalls;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationCellIndicator;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	UBoxComponent* SimulationCellIndicator;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationCellCeiling;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	TArray<ATeleportWall*> TeleportWalls;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationCellFloor;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationCellXPosWall;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationCellXNegWall;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationCellYPosWall;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Simulation)
-		UBoxComponent* SimulationCellYNegWall;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Simulation")
+	USimulationData* SimulationData;
 };

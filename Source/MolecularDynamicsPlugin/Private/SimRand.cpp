@@ -2,11 +2,9 @@
 
 #include "SimRand.h"
 
-#include "Math/UnrealMathUtility.h"
-#include "Simulation.h"
-
 USimRand::USimRand() {
     // Empty default constructor.
+    SimulationData = NULL;
 }
 
 float USimRand::RandF_Normal() {
@@ -14,16 +12,34 @@ float USimRand::RandF_Normal() {
 }
 
 FVector USimRand::RandV_MaxwellBoltzmann(float Mass_u, float Temperature) {
-    float M_kg = Mass_u * ASimulation::KG_PER_U;
-    float SD = FMath::Sqrt(ASimulation::BOLTZMANN * Temperature / M_kg);
+    float M_kg = Mass_u * USimulationConstants::DA_TO_KG;
+    float SD = FMath::Sqrt(USimulationConstants::BOLTZMANN * Temperature / M_kg);
 
     FVector v(
-        SD * (NormalDist->Lookup(FMath::FRand())),
-        SD * (NormalDist->Lookup(FMath::FRand())),
-        SD * (NormalDist->Lookup(FMath::FRand()))
+        SD * (NormalDist->Lookup_Interpolate(FMath::FRand())),
+        SD * (NormalDist->Lookup_Interpolate(FMath::FRand())),
+        SD * (NormalDist->Lookup_Interpolate(FMath::FRand()))
     );
 
-    return v;
+	//Adjust returned velocity to be in proper unreal units. We are treating our simulation as being in 1uu = 1pm, 1unreal second = 1 picosecond
+	//the velocity returned from this function is in m/s, but Unreal likes 1uu = 1cm. 
+	//This is done so that the speed of the molecules is returned in the Unreal units of distance and time
+    v *= USimulationConstants::M_TO_CM;
+
+	//Adjust time scale from unreal seconds which are equivalent to tens of femtoseconds
+    v *= USimulationConstants::TFS_TO_PS;
+
+    if(SimulationData != NULL)
+    {
+        v *= SimulationData->GetSimulationSpeed();
+    }
+	
+	return v;
+}
+
+void USimRand::SetSimulationData(USimulationData* SharedData)
+{
+    SimulationData = SharedData;
 }
 
 void USimRand::Init() {

@@ -15,11 +15,11 @@ struct FMoleculeConcentration
 {
     GENERATED_BODY()
 
-        /** Name of the molecule. */
-        UPROPERTY()
-        FString ReactantName;
+    /** Name of the molecule. */
+    UPROPERTY()
+    FString ReactantName;
 
     /** Reactant concentration (moles per litre solution). */
     UPROPERTY()
-        float Concentration;
+    float Concentration;
 };

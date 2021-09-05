@@ -53,5 +53,10 @@ public class MolecularDynamicsPlugin : ModuleRules
 
 		// Tell the packager to include the chemical data files.
 		RuntimeDependencies.Add("MolecularDynamicsPlugin/Content/ChemData/...");
+
+		// Compile source file separately instead of combining them into a Unity monolith,
+		// to speed up compile times for small changes.
+		MinFilesUsingPrecompiledHeaderOverride = 1;
+		bFasterWithoutUnity = true;
 	}
 }

@@ -30,6 +30,10 @@ struct FMoleculePrototype
 	UPROPERTY()
 	float MolarMass = 0.0f;
 
+	/**Moments of inertia about x, y, and z axes, in u.m^2 (u=atomic mass unit).*/
+	UPROPERTY()
+	FVector MomentOfInertia;
+
 	/**An array of Atoms in the Molecule*/
 	UPROPERTY()
 	TArray<FAtomPrototype> Atoms;

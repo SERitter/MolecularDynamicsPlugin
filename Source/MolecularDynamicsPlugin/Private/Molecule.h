@@ -6,12 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "Atom.h"
 #include "AtomData.h"
-//#include "Bond.h"
+#include "Bond.h"
 #include "MoleculePrototype.h"
 #include "AtomPrototype.h"
+#include "SimulationData.h"
 #include "Engine/DataTable.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/RotatingMovementComponent.h"
+
 #include "Molecule.generated.h"
 
 UCLASS()
@@ -23,36 +26,113 @@ public:
 	// Sets default values for this actor's properties
 	AMolecule();
 
-	void InitMolecule(FMoleculePrototype& Prototype, int32 Index, UDataTable* AtomDataTable);
-
-	void InitCollisionSpheres();
+	void InitMolecule(FMoleculePrototype& Prototype, int32 Index, USimulationData* Simulation);
 
 	UFUNCTION()
-		void EnablePhysics();
+	void AddImpulse(FVector ImpulseVector);
+
+	UFUNCTION()
+	void AddTorque(FVector TorqueVector);
+	
+	UFUNCTION()
+	void EnablePhysics();
+
+	UFUNCTION()
+	void Freeze();
+
+	UFUNCTION()
+	FVector GetCurrentVelocity();
+
+	UFUNCTION()
+	FVector GetInitialPosition();
+	
+	//UFUNCTION()
+	//float GetInitialTemperature();
+
+	UFUNCTION()
+	FVector GetInitialTorque();
+	
+	UFUNCTION()
+	FVector GetInitialVelocity();
 
 	/** Chemical formula for the molecule. */
 	UFUNCTION()
-		FString GetMoleculeFormula();
+	FString GetMoleculeFormula();
 
 	/** Sum of all the atom masses in the molecule. */
 	UFUNCTION()
-		float GetMoleculeMass();
+	float GetMoleculeMass();
 
 	/** The name of this molecule ("water" etc.). */
 	UFUNCTION()
-		FString GetMoleculeName();
+	FString GetMoleculeName();
 	
 	UFUNCTION()
-		int32 GetNumAtoms();
+	int32 GetNumAtoms();
 
 	UFUNCTION()
-		void SetRenderBallStick();
+	float GetSpeed();
+
+	//UFUNCTION()
+	//FVector GetCurrentTorque();
 
 	UFUNCTION()
-		void SetRenderSpaceFilling();
+	void ResetMolecule();
 
 	UFUNCTION()
-		void SetVelocity(FVector NewVelocity);
+	void SetAngularVelocity(FVector NewAngularVelocity);
+
+	UFUNCTION()
+	void SetInitialPosition(FVector Position);
+
+	UFUNCTION()
+	void SetInitialVelocity(FVector NewVelocity);
+	
+	//UFUNCTION()
+	//void SetInitialTemperature(float InitialTemperature);
+	
+	UFUNCTION()
+	void SetHideCollisionSpheres();
+
+	UFUNCTION()
+	void SetHideCoM();
+
+	UFUNCTION()
+	void SetHideInteractionSpheres();
+
+	UFUNCTION()
+	void SetHideSpline();
+	
+	UFUNCTION()
+	void SetShowCollisionSpheres();
+
+	UFUNCTION()
+	void SetShowInteractionSpheres();
+
+	UFUNCTION()
+	void SetShowCoM();
+
+	UFUNCTION()
+	void SetShowSpline();
+
+	UFUNCTION()
+	void SetRenderBallStick();
+
+	UFUNCTION()
+	void SetRenderHidden();
+
+	UFUNCTION()
+	void SetRenderLinear();
+	
+	UFUNCTION()
+	void SetRenderSpaceFilling();
+	
+	UFUNCTION()
+	void SetVelocity(FVector NewVelocity);
+
+	UFUNCTION()
+	void UpdateIntermolecularForces();
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -65,40 +145,56 @@ public:
 private:
 	/** List of atoms in this molecule.  Atom positions are relative to molecule's origin. */
 	UPROPERTY(VisibleAnywhere, Category="Simulation")
-		TArray<UAtom*> Atoms;
+	TArray<UAtom*> Atoms;
 	
 	/** List of bonds between atoms. */
-//	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-//		TArray<ABond*> Bonds;
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	TArray<UBond*> Bonds;
 
 	/** List of bonds between atoms. */
 	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		TArray<USphereComponent*> CollisionSpheres;
+	TArray<USphereComponent*> CollisionSpheres;
 
-	/** Marker showing the location of the center of mass. */
+	UPROPERTY(EditAnywhere, Category = "Simulation")
+	FVector InitialPosition;
+
 	//UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		//USphereComponent* AtomCollisionSphere;
+	//float InitialTemp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	FVector InitialTorque;
+	
+	UPROPERTY(EditAnywhere, Category = "Simulation")
+	FVector InitialVelocity;
 	
 	/** Marker showing the location of the center of mass. */
 	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		USphereComponent* MoleculeCoMIndicator;
+	USphereComponent* MoleculeCoMIndicator;
 
 	/** Chemical formula for the molecule. */
 	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		FString MoleculeFormula;
+	FString MoleculeFormula;
 	
 	/** Index of the Molecule in the simulation Molecules TArray */
 	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		int32 MoleculeIndex;
+	int32 MoleculeIndex;
 	
 	/** Name of the molecule ("water" etc). */
 	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		FString MoleculeName;
+	FString MoleculeName;
 
 	/** Sum of all the atom masses in the molecule. */
 	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		float MoleculeMass;
+	float MoleculeMass;
 
 	UPROPERTY(VisibleAnywhere, Category = "Simulation")
-		UProjectileMovementComponent* MoleculeMovementComponent;
+	UProjectileMovementComponent* MoleculeMovementComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	URotatingMovementComponent* MoleculeRotationComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	USimulationData* SimulationData;
+	//ASimulationCell* SimulationCell;
+	//AActor* Simulation;
 };

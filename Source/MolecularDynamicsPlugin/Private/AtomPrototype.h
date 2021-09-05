@@ -22,5 +22,5 @@ struct FAtomPrototype
 
 	/** The serial number of the atom in the molecule (used by other entries in the PDB file. */
 	UPROPERTY()
-		int32 SerialNumber;
+	int32 SerialNumber;
 };

@@ -24,12 +24,33 @@ public:
     void Init(TArray<float> Xin, TArray<float> Yin);
 
     /**
+     * Initialize the lookup table from a CSV file, which this function will read in.
+     * The file should have exactly 2 columns; the
+     * first will be X and the second will be Y.
+     * @param CSVFilePath - The name WITH FULL PATH of the CSV file to load.
+     * @return True if the it was successful, false if there were problems.
+     */
+    UFUNCTION()
+    bool InitFromCSVFile(const FString &CSVFilePath);
+
+    /**
+     * Get a table y-value.  Finds the largest X value that's <= the given X (i.e. nearest without going over).  If the input value is out of range, the first or last output value is used.
+     * 
+     * ASSUMES the X values are evenly spaced and increasing monotonically.  (This allows very fast lookups.)
+     * 
+     * @param X - The x-value to look up.
+     * @return The corresponding y-value.
+     */
+    UFUNCTION()
+    float Lookup(float X);
+
+    /**
     * Get a table y-value.  Interpolates linearly between the nearest X values.  If the input value is out of range, the first or last output value is used.
     * @param X - The x value to look up.
     * @return The corresponding y-value.
     */
     UFUNCTION()
-        float Lookup(float X);
+        float Lookup_Interpolate(float X);
 
     UFUNCTION()
         float GetXmin();

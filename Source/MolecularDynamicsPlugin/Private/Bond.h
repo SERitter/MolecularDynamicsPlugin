@@ -3,186 +3,92 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Components/StaticMeshComponent.h"
-#include "Materials/Material.h"
-#include "Math/Color.h"
-//#include "AtomOLD.h"
+
+#include "Atom.h"
+#include "BondType.h"
+#include "Components/SceneComponent.h"
+#include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
+
 #include "Bond.generated.h"
 
+
+//UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+//class UBond : public USceneComponent
+
 UCLASS()
-class ABond : public AActor
+class UBond : public USplineComponent
 {
 	GENERATED_BODY()
 
-public:
-	/**
-	 * Default constructor; all zeroes, no Tick().
-	 */
-	ABond();
+public:	
+	// Sets default values for this component's properties
+	UBond();
 
-	/**
-	 * Construct a bond with the given properties, connected to the given atoms.
-	 * Use this constructor if you're not making "prototype" bonds.
-	 * @param Name - String to identify the bond.
-	 * @param Type - Type of bond (hydrogen, single, double, etc.).
-	 * @param EquilibriumLength - Bond length without oscillations etc., in Angstroms.
-	 * @param SpringConstant - Measure of bond strength, in kcal/(mol*A^2).
-	 * @param Color - What colour to use when drawing this bond.
-	 * @param AtomA - The first atom to connect to.
-	 * @param AtomB - The second atom to connect to.
-	UFUNCTION()
-		void InitBond(
-			FString Name,
-			FString Type,
-			float EquilibriumLength,
-			float SpringConstant,
-			FLinearColor Color);
-//			FLinearColor Color,
-	//		AAtom* AtomA,
-	//		AAtom* AtomB);
-	 */
+	void InitBond(UAtom* AtomAIn, UAtom* AtomBIn, EBondType& BondTypeIn);
 
-	/**
-	 * Construct a prototype bond.  Does not connect to any atoms.
-	 * @param Name - String to identify the bond.
-	 * @param Type - Type of bond (hydrogen, single, double, etc.).
-	 * @param EquilibriumLength - Bond length without oscillations etc., in Angstroms.
-	 * @param SpringConstant - Measure of bond strength, in kcal/(mol*A^2).
-	 * @param Color - What colour to use when drawing this bond.
-	 */
-	UFUNCTION()
-		void InitBondPrototype(
-			FString Name,
-			FString Type,
-			float EquilibriumLength,
-			float SpringConstant,
-			FLinearColor Color
-		);
+	void InitBondRep();
 
-	/**
-	 * Copy constructor.  Copies properties from the Source, and connects the
-	 * bond to the specified atoms.
-	 * @param Source - The object to copy properties from.
-	 * @param AtomA - The first atom to connect to.
-	 * @param AtomB - The second atom to connect to.
-	 */
-	//UFUNCTION()
-		//void InitBondCopy(ABond* Source, AAtom* AtomA, AAtom* AtomB);
+	void InitBondType();
 
-	/**
-	 * Copies properties from the Source, including the linked atoms.
-	 * Used when copying a molecule.
-	 */
-	 // UFUNCTION()
-	 // void InitBondExactCopy(ABond *Source);
+	void InitSpline();
+
+	void SetHideSpline();
+
+	void SetShowSpline();
+
+	void SetRenderBallStick();
+
+	void SetRenderHidden();
+
+	void SetRenderLinear();
+
+	void SetRenderSpaceFilling();
+	
 
 protected:
-	// Called when the game starts or when spawned
+	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:
+public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	/**
-	 * @return The identifier for the bond prototype.
-	 */
-	UFUNCTION()
-		FString GetBondName();
-
-	/**
-	 * @return The type of bond (single, double, etc).
-	 */
-	UFUNCTION()
-		FString GetBondType();
-
-	/**
-	 * Accesses the energy value for the bond
-	 * @return - The current Energy of this bond
-	 */
-	UFUNCTION()
-		float GetBondEnergy();
-
-	/**
-	 * Accesses the bond length for the bond
-	 * @return - The stored bond length
-	 */
-	UFUNCTION()
-		float GetBondLength();
-
-	/**
-	 * @return Pointer to the atom at one end of the bond.
-	UFUNCTION()
-		AAtom* GetAtomA();
-	 */
-
-	/**
-	 * @return Pointer to the atom at one end of the bond.
-	UFUNCTION()
-		AAtom* GetAtomB();
-	 */
-
-	/**
-	 * Connects one end of the bond to the given atom.
-	 * @param Atom - The atom to connect to.
-	UFUNCTION()
-		void SetAtomA(AAtom* Atom);
-	 */
-
-	/**
-	 * Connects one end of the bond to the given atom.
-	 * @param Atom - The atom to connect to.
-	UFUNCTION()
-		void SetAtomB(AAtom* Atom);
-	 */
-
-	/** Calculates the energy stored in the bond */
-	UFUNCTION()
-		void UpdateBondEnergy();
-
-	/** Calculates the distance between the two atoms involved in the bond */
-	UFUNCTION()
-		void UpdateBondLength();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	/** A pointer to AtomA in the bond */
-	//UPROPERTY()
-		//AAtom* AtomA;
-
-	/** A pointer to AtomB in the bond */
-	//UPROPERTY()
-		//AAtom* AtomB;
-
-	/** Identifier for the prototype of this bond. */
 	UPROPERTY()
-		FString Name;
+	UAtom* AtomA;
+	//FVector StartPosition;
 
-	/** Type of bond (hydrogen, single, double, etc.). */
 	UPROPERTY()
-		FString Type;
+	UAtom* AtomB;
+	//FVector EndPosition;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	UStaticMesh* BondMesh;
 
-	/** Stores the Equilibrium BondLength in [Angstroms] */
-	UPROPERTY()
-		float EquilibriumLength;
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	UPhysicsConstraintComponent* BondPhysicsConstraint;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	EBondType BondType;
 
-	/** Stores the Current BondLength in [Angstroms] */
-	UPROPERTY()
-		float Length;
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	FColor Color;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	FColor ColorA; 
 
-	/** Stores the bond spring constant in [eV/(mol*A^2)] */
-	UPROPERTY()
-		float SpringConstant;
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	FColor ColorB;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	UMaterialInterface* MaterialBase;
 
-	/** Stores a representation of the bond for use in engine. */
-	UPROPERTY()
-		UStaticMeshComponent* Representation;
-
-	/** Stores the material for the static mesh of the representation. */
-	UPROPERTY()
-		UMaterial* Material;
-
-	/** Stores the desired Color for the Material for the representation. */
-	UPROPERTY()
-		FLinearColor Color;
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	UMaterialInstanceDynamic* MaterialDynamic;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Simulation")
+	USplineMeshComponent* SplineMeshComponent;
+	
 };

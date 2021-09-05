@@ -48,6 +48,5 @@ public:
 	/** The length of this atom's side of a triple bond, in picometres. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AtomData")
 		float BondLengthTriple;
-
 };
 
